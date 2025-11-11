@@ -36,7 +36,7 @@ Bit* Chess::PieceForPlayer(const int playerNumber, ChessPiece piece)
     bit->setOwner(getPlayerAt(playerNumber));
     bit->setSize(pieceSize, pieceSize);
 
-        bit->setGameTag((playerNumber == 0 ? 0 : 128) + static_cast<int>(piece));
+    bit->setGameTag((playerNumber == 0 ? 0 : 128) + static_cast<int>(piece));
 
     return bit;
 }
@@ -54,25 +54,23 @@ void Chess::setUpBoard()
 }
 
 void Chess::FENtoBoard(const std::string& fen) {
-    // 1) Take only field #1 (piece placement). If a full FEN is passed, we ignore the rest for now.
+    //accept board only or full FEN 
     std::string boardField = fen;
     if (auto sp = boardField.find(' '); sp != std::string::npos) {
         boardField = boardField.substr(0, sp);
     }
 
-    // 2) Clear the board first
-    _grid->forEachSquare([&](ChessSquare* square, int, int) {
-        square->setBit(nullptr);
+    //clear existing pieces
+    _grid->forEachSquare([&](ChessSquare* sq, int, int){
+        sq->setBit(nullptr);
     });
 
-    // 3) Parse ranks from 8 -> 1 (FEN order). Our grid uses y=0 at the top, so:
-    //    rank 8 -> y=0, rank 7 -> y=1, ..., rank 1 -> y=7
-    int rank = 7;   // 7..0
-    int file = 0;   // 0..7
+    int rank = 7;      
+    int file = 0;     
 
-    auto pushPiece = [&](int x, int y, char c) {
+    auto drop = [&](int x, int y, char c) {
         const bool white = (c >= 'A' && c <= 'Z');
-        char lc = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        char lc = (char)std::tolower((unsigned char)c);
 
         ChessPiece piece = NoPiece;
         switch (lc) {
@@ -82,38 +80,29 @@ void Chess::FENtoBoard(const std::string& fen) {
             case 'r': piece = Rook;   break;
             case 'q': piece = Queen;  break;
             case 'k': piece = King;   break;
-            default:  return; // ignore unknown
+            default: return; // ignore unknown
         }
 
         Bit* b = PieceForPlayer(white ? 0 : 1, piece);
-        if (b) {
-            // gameTag set in PieceForPlayer; just drop it on the board
-            _grid->getSquare(x, y)->setBit(b);
-        }
+        ChessSquare* sq = _grid->getSquare(x, y);
+        sq->setBit(b);
+
+        ImVec2 p = sq->getPosition();
+        b->setCenterPosition(ImVec2(p.x + pieceSize/2, p.y + pieceSize/2));
     };
 
     for (char c : boardField) {
-        if (c == '/') {
-            // next rank (downwards on screen)
-            rank--;
-            file = 0;
-            continue;
-        }
-        if (c >= '1' && c <= '8') {
-            file += (c - '0'); // skip that many empty files
-            continue;
-        }
-        if (file < 0 || file > 7 || rank < 0 || rank > 7) {
-            continue; // guard against malformed FEN
-        }
-        int y = 7 - rank;    // rank 7->y=0 ... rank 0->y=7
+        if (c == '/') { rank--; file = 0; continue; }
+        if (c >= '1' && c <= '8') { file += (c - '0'); continue; }
+        if (file > 7 || rank < 0) continue;
+
+        int y = 7 - rank; 
         int x = file;
-        pushPiece(x, y, c);
+        drop(x, y, c);
         file++;
     }
-
-    
 }
+
 
 
 bool Chess::actionForEmptyHolder(BitHolder &holder)

@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Grid.h"
 
+
 constexpr int pieceSize = 80;
 
 enum ChessPiece
@@ -35,6 +36,7 @@ public:
 
     std::string initialStateString() override;
     std::string stateString() override;
+    
     void setStateString(const std::string &s) override;
 
     Grid* getGrid() override { return _grid; }

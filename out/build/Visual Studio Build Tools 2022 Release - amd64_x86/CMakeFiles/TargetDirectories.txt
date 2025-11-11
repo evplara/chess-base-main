@@ -1,0 +1,9 @@
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/Experimental.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/Nightly.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/Continuous.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/NightlyMemoryCheck.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/demo.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/PACKAGE.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/RUN_TESTS.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/ALL_BUILD.dir
+C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/ZERO_CHECK.dir

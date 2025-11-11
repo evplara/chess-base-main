@@ -1,0 +1,10 @@
+^C:\USERS\EVANL\ONEDRIVE\DESKTOP\CHESS-BASE-MAIN\CHESS-BASE-MAIN\CMAKELISTS.TXT
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main "-BC:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86" --check-stamp-file "C:/Users/evanl/OneDrive/Desktop/chess-base-main/chess-base-main/out/build/Visual Studio Build Tools 2022 Release - amd64_x86/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

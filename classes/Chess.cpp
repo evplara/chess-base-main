@@ -96,7 +96,7 @@ void Chess::FENtoBoard(const std::string& fen) {
         if (c >= '1' && c <= '8') { file += (c - '0'); continue; }
         if (file > 7 || rank < 0) continue;
 
-        int y = 7 - rank; 
+        int y = rank; 
         int x = file;
         drop(x, y, c);
         file++;

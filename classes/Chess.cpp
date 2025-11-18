@@ -1,6 +1,9 @@
 #include "Chess.h"
+#include "ChessSquare.h"  
 #include <limits>
 #include <cmath>
+#include <cstdint>
+
 
 Chess::Chess()
 {
@@ -11,6 +14,142 @@ Chess::~Chess()
 {
     delete _grid;
 }
+
+bool Chess::canPawnMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const
+{
+    const bool isWhite = bit.gameTag() < 128;
+    const int dir      = isWhite ? 1 : -1;   // white moves "up" (increasing row), black "down"
+    const int startRow = isWhite ? 1 : 6;    // initial ranks for pawns in your FEN setup
+
+    const int fromCol = from.getColumn();
+    const int fromRow = from.getRow();
+    const int toCol   = to.getColumn();
+    const int toRow   = to.getRow();
+
+    const int dx = toCol - fromCol;
+    const int dy = toRow - fromRow;
+
+    Bit* targetBit = to.bit(); // piece currently on the destination, if any
+
+    // 1) Forward moves (no capture)
+    if (dx == 0)
+    {
+        // Cannot move straight into an occupied square
+        if (targetBit != nullptr) {
+            return false;
+        }
+
+        // Single step
+        if (dy == dir) {
+            return true;
+        }
+
+        // Double step from starting rank must be clear all the way
+        if (fromRow == startRow && dy == 2 * dir)
+        {
+            int midRow = fromRow + dir;
+            ChessSquare* midSq = _grid->getSquare(fromCol, midRow);
+            if (midSq && midSq->bit() == nullptr) {
+                return true;
+            }
+        }
+
+        // Any other vertical distance is illegal
+        return false;
+    }
+
+    // 2)captues one square diagonally forward onto an enemy piece
+    if (dy == dir && std::abs(dx) == 1)
+    {
+        // must be capturing something; no "moving" diagonally into empty space
+        if (targetBit == nullptr) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Everything else is illegal for pawns 
+    return false;
+}
+
+
+bool Chess::canKnightMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const
+{
+    (void)bit; 
+
+    const int fromCol = from.getColumn();
+    const int fromRow = from.getRow();
+
+    // All relative knight moves (dx, dy)
+    static const int offsets[8][2] = {
+        {  1,  2 }, {  2,  1 }, {  2, -1 }, {  1, -2 },
+        { -1, -2 }, { -2, -1 }, { -2,  1 }, { -1,  2 }
+    };
+
+    uint64_t mask = 0;
+
+    for (auto& off : offsets) {
+        int nx = fromCol + off[0];
+        int ny = fromRow + off[1];
+        if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+            int idx = ny * 8 + nx;
+            mask |= (1ULL << idx);
+        }
+    }
+
+    BitboardElement moves(mask);
+
+    const int targetIndex = to.getSquareIndex();
+    bool reachable = false;
+
+    moves.forEachBit([&](int idx) {
+        if (idx == targetIndex) {
+            reachable = true;
+        }
+    });
+
+    return reachable;
+}
+
+bool Chess::canKingMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const
+{
+    (void)bit; 
+
+    const int fromCol = from.getColumn();
+    const int fromRow = from.getRow();
+
+    // All eight adjacent squares (dx, dy)
+    static const int offsets[8][2] = {
+        {  1,  0 }, {  1,  1 }, {  0,  1 }, { -1,  1 },
+        { -1,  0 }, { -1, -1 }, {  0, -1 }, {  1, -1 }
+    };
+
+    uint64_t mask = 0;
+
+    for (auto& off : offsets) {
+        int nx = fromCol + off[0];
+        int ny = fromRow + off[1];
+        if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+            int idx = ny * 8 + nx;
+            mask |= (1ULL << idx);
+        }
+    }
+
+    BitboardElement moves(mask);
+
+    const int targetIndex = to.getSquareIndex();
+    bool reachable = false;
+
+    moves.forEachBit([&](int idx) {
+        if (idx == targetIndex) {
+            reachable = true;
+        }
+    });
+
+    return reachable;
+}
+
 
 char Chess::pieceNotation(int x, int y) const
 {
@@ -121,8 +260,42 @@ bool Chess::canBitMoveFrom(Bit &bit, BitHolder &src)
 
 bool Chess::canBitMoveFromTo(Bit &bit, BitHolder &src, BitHolder &dst)
 {
-    return true;
+    // Enforce turn: only current player's color may move
+    int currentPlayerColor = getCurrentPlayer()->playerNumber() * 128;
+    int pieceColor         = bit.gameTag() & 128;
+    if (pieceColor != currentPlayerColor) {
+        return false;
+    }
+
+    // We expect these holders to actually be ChessSquares
+    auto* fromSquare = dynamic_cast<ChessSquare*>(&src);
+    auto* toSquare   = dynamic_cast<ChessSquare*>(&dst);
+
+    if (!fromSquare || !toSquare) {
+        return false;
+    }
+
+    // Decode the piece type from the gameTag: low 7 bits store the enum value
+    const int tagValue      = bit.gameTag() & 0x7F;
+    ChessPiece pieceType    = static_cast<ChessPiece>(tagValue);
+
+    switch (pieceType)
+    {
+        case Pawn:
+            return canPawnMove(bit, *fromSquare, *toSquare);
+
+        case Knight:
+            return canKnightMove(bit, *fromSquare, *toSquare);
+
+        case King:
+            return canKingMove(bit, *fromSquare, *toSquare);
+
+        // For this assignment we don't implement bishops/rooks/queens yet
+        default:
+            return false;
+    }
 }
+
 
 void Chess::stopGame()
 {

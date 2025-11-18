@@ -26,9 +26,10 @@ public:
         int rowDistance = abs(_row - other._row);
         return columnDistance > rowDistance ? columnDistance : rowDistance;
     }
-    int getColumn() { return _column; }
-    int getRow() { return _row; }
-    int getSquareIndex() { return _row * 8 + _column; }
+    int getColumn() const { return _column; }
+    int getRow() const { return _row; }
+    int getSquareIndex() const { return _row * 8 + _column; }
+
 
 private:
     ImVec4 Lerp(ImVec4 a, ImVec4 b, float t)

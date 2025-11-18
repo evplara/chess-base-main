@@ -2,20 +2,22 @@
 
 #include "Game.h"
 #include "Grid.h"
-
+#include "Bitboard.h"    
 
 constexpr int pieceSize = 80;
 
-enum ChessPiece
-{
-    NoPiece,
-    Pawn,
-    Knight,
-    Bishop,
-    Rook,
-    Queen,
-    King
-};
+// enum ChessPiece
+// {
+//     NoPiece,
+//     Pawn,
+//     Knight,
+//     Bishop,
+//     Rook,
+//     Queen,
+//     King
+// };
+
+class ChessSquare;      
 
 class Chess : public Game
 {
@@ -36,7 +38,7 @@ public:
 
     std::string initialStateString() override;
     std::string stateString() override;
-    
+
     void setStateString(const std::string &s) override;
 
     Grid* getGrid() override { return _grid; }
@@ -46,6 +48,10 @@ private:
     Player* ownerAt(int x, int y) const;
     void FENtoBoard(const std::string& fen);
     char pieceNotation(int x, int y) const;
+
+    bool canPawnMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const;
+    bool canKnightMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const;
+    bool canKingMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const;
 
     Grid* _grid;
 };

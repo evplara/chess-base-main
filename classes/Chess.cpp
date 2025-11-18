@@ -3,6 +3,7 @@
 #include <limits>
 #include <cmath>
 #include <cstdint>
+#include <vector>
 
 
 Chess::Chess()
@@ -189,6 +190,9 @@ void Chess::setUpBoard()
     _grid->initializeChessSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
+    _debugMoves.clear();
+    generateMoves(_debugMoves);
+    
     startGame();
 }
 
@@ -242,6 +246,60 @@ void Chess::FENtoBoard(const std::string& fen) {
     }
 }
 
+
+void Chess::generateMoves(std::vector<BitMove>& outMoves)
+{
+    outMoves.clear();
+
+    // Current player's color tag: 0 for white, 128 for black
+    int currentColorTag = getCurrentPlayer()->playerNumber() * 128;
+
+    for (int y = 0; y < 8; ++y)
+    {
+        for (int x = 0; x < 8; ++x)
+        {
+            ChessSquare* fromSq = _grid->getSquare(x, y);
+            Bit* pieceBit = fromSq->bit();
+            if (!pieceBit) continue;
+
+            // Skip enemy pieces
+            if ((pieceBit->gameTag() & 128) != currentColorTag)
+                continue;
+
+            // Decode piece type (low 7 bits)
+            int tagValue = pieceBit->gameTag() & 0x7F;
+            ChessPiece pieceType = static_cast<ChessPiece>(tagValue);
+
+            // Only generate moves for Pawn, Knight, King for this assignment
+            if (pieceType != Pawn && pieceType != Knight && pieceType != King)
+                continue;
+
+            int fromIndex = y * 8 + x;
+
+            for (int ty = 0; ty < 8; ++ty)
+            {
+                for (int tx = 0; tx < 8; ++tx)
+                {
+                    if (tx == x && ty == y) continue; // skip same square
+
+                    ChessSquare* toSq = _grid->getSquare(tx, ty);
+
+                    // First, respect capture rules (can't land on own piece)
+                    if (!toSq->canDropBitAtPoint(pieceBit, pieceBit->getPosition()))
+                        continue;
+
+                    // Then, check piece movement rules (pawns / knights / king)
+                    if (!canBitMoveFromTo(*pieceBit, *fromSq, *toSq))
+                        continue;
+
+                    int toIndex = ty * 8 + tx;
+
+                    outMoves.emplace_back(fromIndex, toIndex, pieceType);
+                }
+            }
+        }
+    }
+}
 
 
 bool Chess::actionForEmptyHolder(BitHolder &holder)

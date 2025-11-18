@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "Game.h"
 #include "Grid.h"
 #include "Bitboard.h"    
@@ -43,6 +44,9 @@ public:
 
     Grid* getGrid() override { return _grid; }
 
+    void generateMoves(std::vector<BitMove>& outMoves);
+
+
 private:
     Bit* PieceForPlayer(const int playerNumber, ChessPiece piece);
     Player* ownerAt(int x, int y) const;
@@ -54,4 +58,6 @@ private:
     bool canKingMove(const Bit& bit, const ChessSquare& from, const ChessSquare& to) const;
 
     Grid* _grid;
+
+    std::vector<BitMove> _debugMoves;
 };

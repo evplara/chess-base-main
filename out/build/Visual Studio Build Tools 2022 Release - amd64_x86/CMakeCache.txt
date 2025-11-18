@@ -15,7 +15,7 @@
 ########################
 
 //Build the testing tree.
-BUILD_TESTING:BOOL=ON
+BUILD_TESTING:BOOL=TRUE
 
 //Path to a program.
 CMAKE_AR:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x86/lib.exe
@@ -178,10 +178,10 @@ CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL
 
 //If set, runtime paths are not added when installing shared libraries,
 // but are added when building.
-CMAKE_SKIP_INSTALL_RPATH:BOOL=NO
+CMAKE_SKIP_INSTALL_RPATH:BOOL=FALSE
 
 //If set, runtime paths are not added when using shared libraries.
-CMAKE_SKIP_RPATH:BOOL=NO
+CMAKE_SKIP_RPATH:BOOL=FALSE
 
 //Flags used by the linker during the creation of static libraries
 // during all build types.
@@ -217,31 +217,31 @@ COVERAGE_COMMAND:FILEPATH=COVERAGE_COMMAND-NOTFOUND
 COVERAGE_EXTRA_FLAGS:STRING=-l
 
 //Enable to build 7-Zip packages
-CPACK_BINARY_7Z:BOOL=OFF
+CPACK_BINARY_7Z:BOOL=FALSE
 
 //Enable to build IFW packages
-CPACK_BINARY_IFW:BOOL=OFF
+CPACK_BINARY_IFW:BOOL=FALSE
 
 //Enable to build Inno Setup packages
-CPACK_BINARY_INNOSETUP:BOOL=OFF
+CPACK_BINARY_INNOSETUP:BOOL=FALSE
 
 //Enable to build NSIS packages
-CPACK_BINARY_NSIS:BOOL=ON
+CPACK_BINARY_NSIS:BOOL=TRUE
 
 //Enable to build NuGet packages
-CPACK_BINARY_NUGET:BOOL=OFF
+CPACK_BINARY_NUGET:BOOL=FALSE
 
 //Enable to build WiX packages
-CPACK_BINARY_WIX:BOOL=OFF
+CPACK_BINARY_WIX:BOOL=FALSE
 
 //Enable to build ZIP packages
-CPACK_BINARY_ZIP:BOOL=OFF
+CPACK_BINARY_ZIP:BOOL=FALSE
 
 //Enable to build 7-Zip source packages
-CPACK_SOURCE_7Z:BOOL=ON
+CPACK_SOURCE_7Z:BOOL=TRUE
 
 //Enable to build ZIP source packages
-CPACK_SOURCE_ZIP:BOOL=ON
+CPACK_SOURCE_ZIP:BOOL=TRUE
 
 //How many times to retry timed-out CTest submissions.
 CTEST_SUBMIT_RETRY_COUNT:STRING=3

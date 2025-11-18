@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\evanl\OneDrive\Desktop\chess-base-main\chess-base-main\out\build\Visual Studio Build Tools 2022 Release - amd64\CMakeFiles\1637d63baae74036284a8f123ec99fe6\NightlyMemoryCheck.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\evanl\OneDrive\Desktop\chess-base-main\chess-base-main\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\evanl\OneDrive\Desktop\chess-base-main\chess-base-main\out\build\Visual Studio Build Tools 2022 Release - amd64\CMakeFiles\NightlyMemoryCheck" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{073094A2-E4C4-386E-AFB6-88410F58B822}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -71,7 +71,7 @@ bool Bit::getPickedUp()
 	return _pickedUp;
 }
 
-Player *Bit::getOwner()
+Player *Bit::getOwner() const
 {
 	return _owner;
 }

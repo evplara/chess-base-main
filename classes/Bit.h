@@ -40,7 +40,7 @@ public:
 	// am I in a holder? nullptr if I'm not.
 	BitHolder *getHolder();
 	// which player owns me
-	Player *getOwner();
+	Player *getOwner() const;
 	void setOwner(Player *player) { _owner = player; };
 	// helper functions
 	bool friendly();

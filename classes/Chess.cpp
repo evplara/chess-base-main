@@ -249,10 +249,16 @@ int Chess::negamax(std::string& state, int depth, int alpha, int beta, int playe
         return evaluateBoard(state) * playerColor;
     }
 
-    auto newMoves = generateAllMoves(state, playerColor);
+    auto newMoves = generateLegalMoves(state, playerColor);
 
     if (newMoves.empty()) {
-        return evaluateBoard(state) * playerColor;
+        if (isKingInCheck(state, playerColor)) {
+            // checkmated – large negative score
+            return -100000 * playerColor; 
+        } else {
+            // stalemate – neutral
+            return 0;
+        }
     }
 
     int bestVal = negInfinite;
@@ -305,7 +311,7 @@ void Chess::updateAI()
     int bestVal = negInfinite;
     BitMove bestMove;
 
-    auto rootMoves = generateAllMoves(state, aiColor);
+    auto rootMoves = generateLegalMoves(state, aiColor);
 
     int searchDepth = 3;
 
@@ -573,6 +579,37 @@ bool Chess::canKingMove(const Bit& bit, const ChessSquare& from, const ChessSqua
     return reachable;
 }
 
+bool Chess::isKingInCheck(const std::string& state, int color) const
+{
+    // Find our king
+    char kingChar = (color == WHITE ? 'K' : 'k');
+    int kingIndex = -1;
+
+    for (int i = 0; i < 64; ++i) {
+        if (state[i] == kingChar) {
+            kingIndex = i;
+            break;
+        }
+    }
+
+    if (kingIndex == -1) {
+        return true;
+    }
+
+    int enemyColor = -color;
+
+    // Generate all enemy moves and see if any hit king square
+    auto enemyMoves = const_cast<Chess*>(this)->generateAllMoves(state, enemyColor);
+
+    for (const auto& mv : enemyMoves) {
+        if (mv.to == kingIndex) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 char Chess::pieceNotation(int x, int y) const
 {
@@ -735,6 +772,30 @@ void Chess::generateMoves(std::vector<BitMove>& outMoves)
     }
 }
 
+std::vector<BitMove> Chess::generateLegalMoves(const std::string& state, int color) const
+{
+    std::vector<BitMove> legal;
+    auto pseudo = const_cast<Chess*>(this)->generateAllMoves(state, color);
+
+    for (auto mv : pseudo) {
+        std::string next = state;
+
+        char moving = next[mv.from];
+        char captured = next[mv.to];
+
+        // make the move
+        next[mv.to]   = moving;
+        next[mv.from] = '0';
+
+        // if our king is not in check after this move, it's legal
+        if (!isKingInCheck(next, color)) {
+            legal.push_back(mv);
+        }
+    }
+
+    return legal;
+}
+
 
 bool Chess::actionForEmptyHolder(BitHolder &holder)
 {
@@ -768,29 +829,63 @@ bool Chess::canBitMoveFromTo(Bit &bit, BitHolder &src, BitHolder &dst)
     const int tagValue      = bit.gameTag() & 0x7F;
     ChessPiece pieceType    = static_cast<ChessPiece>(tagValue);
 
+    bool basicLegal = false;
     switch (pieceType)
     {
         case Pawn:
-            return canPawnMove(bit, *fromSquare, *toSquare);
+            basicLegal = canPawnMove(bit, *fromSquare, *toSquare);
+            break;
 
         case Knight:
-            return canKnightMove(bit, *fromSquare, *toSquare);
-
-        case King:
-            return canKingMove(bit, *fromSquare, *toSquare);
+            basicLegal = canKnightMove(bit, *fromSquare, *toSquare);
+            break;
 
         case Bishop:
-            return canBishopMove(bit, *fromSquare, *toSquare);
+            basicLegal = canBishopMove(bit, *fromSquare, *toSquare);
+            break;
 
         case Rook:
-            return canRookMove(bit, *fromSquare, *toSquare);
+            basicLegal = canRookMove(bit, *fromSquare, *toSquare);
+            break;
 
         case Queen:
-            return canQueenMove(bit, *fromSquare, *toSquare);
+            basicLegal = canQueenMove(bit, *fromSquare, *toSquare);
+            break;
+
+        case King:
+            basicLegal = canKingMove(bit, *fromSquare, *toSquare);
+            break;
 
         default:
-            return false;
+            basicLegal = false;
+            break;
     }
+
+    if (!basicLegal) {
+        return false;
+    }
+
+    std::string state = stateString();
+
+    int fromIdx = fromSquare->getSquareIndex();
+    int toIdx   = toSquare->getSquareIndex();
+
+    char moving   = state[fromIdx];
+    char captured = state[toIdx];
+
+    state[toIdx]   = moving;
+    state[fromIdx] = '0';
+
+    // Determine color of moving side
+    Player* owner = bit.getOwner();
+    int color     = (owner->playerNumber() == 0 ? WHITE : BLACK);
+
+    // If this move leaves king in check, it's illegal
+    if (isKingInCheck(state, color)) {
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -816,11 +911,36 @@ Player* Chess::ownerAt(int x, int y) const
 
 Player* Chess::checkForWinner()
 {
+    std::string state = stateString();
+    int currentPlayerNum = getCurrentPlayer()->playerNumber();
+    int toMoveColor = (currentPlayerNum == 0 ? WHITE : BLACK);
+
+    auto legal = generateLegalMoves(state, toMoveColor);
+
+    if (!legal.empty()) {
+        return nullptr; // game continues
+    }
+
+    if (isKingInCheck(state, toMoveColor)) {
+        // checkmate: the side to move is mated, so the other player wins
+        int winnerIndex = (currentPlayerNum == 0 ? 1 : 0);
+        return getPlayerAt(winnerIndex); // adapt to your API
+    }
+
     return nullptr;
 }
 
 bool Chess::checkForDraw()
 {
+    std::string state = stateString();
+    int currentPlayerNum = getCurrentPlayer()->playerNumber();
+    int toMoveColor = (currentPlayerNum == 0 ? WHITE : BLACK);
+
+    auto legal = generateLegalMoves(state, toMoveColor);
+
+    if (!legal.empty()) return false;
+    if (isKingInCheck(state, toMoveColor)) return false; // that's checkmate, not draw
+
     return false;
 }
 

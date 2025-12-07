@@ -69,6 +69,9 @@ private:
     bool canRookMove  (const Bit& bit, const ChessSquare& from, const ChessSquare& to) const;
     bool canQueenMove (const Bit& bit, const ChessSquare& from, const ChessSquare& to) const;
 
+    bool isKingInCheck(const std::string& state, int color) const;
+    std::vector<BitMove> generateLegalMoves(const std::string& state, int color) const;
+
     int evaluateBoard(const std::string& state);
 
     std::vector<BitMove> generateAllMoves(const std::string& state, int playerColor);
